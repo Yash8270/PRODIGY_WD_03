@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #2c3e50;
+            color: #ecf0f1;
+        }
+
+        #game-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            text-align: center;
+        }
+
+        #left-container {
+            text-align: center;
+        }
+
+        #game-board {
+            display: grid;
+            grid-template-columns: repeat(3, 100px);
+            grid-gap: 10px;
+            margin-top: 20px;
+        }
+
+        .cell {
+            width: 100px;
+            height: 100px;
+            font-size: 36px;
+            text-align: center;
+            line-height: 100px;
+            cursor: pointer;
+            background-color: #3498db;
+            color: #ecf0f1;
+            border: 1px solid #2980b9;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+
+        .cell:hover {
+            background-color: #2980b9;
+        }
+
+        .message {
+            margin-top: 20px;
+            font-size: 18px;
+            color: #e74c3c;
+        }
+
+        #turn {
+            margin-top: 10px;
+            font-size: 20px;
+        }
+
+        #restart-btn {
+            background-color: #2ecc71;
+            color: #ecf0f1;
+            font-size: 16px;
+            padding: 10px 20px;
+            margin-top: 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        #restart-btn:hover {
+            background-color: #27ae60;
+        }
+
+        #right-container {
+            text-align: left;
+            padding-left: 20px;
+        }
+    </style>
+    <title>Tic Tac Toe</title>
+</head>
+<body>
+    <div id="game-container">
+        <div id="left-container">
+            <div id="turn">Player 1's turn</div>
+            <div id="game-board"></div>
+            <div class="message" id="message"></div>
+            <button id="restart-btn" onclick="restartGame()">Restart Game</button>
+        </div>
+        <div id="right-container">
+            <p>Player 1: X</p>
+            <p>Player 2: O</p>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const board = document.getElementById("game-board");
+            const turnDisplay = document.getElementById("turn");
+            const messageDisplay = document.getElementById("message");
+            const restartButton = document.getElementById("restart-btn");
+            let currentPlayer = "X";
+            let gameOver = false;
+
+            // Create cells dynamically and add click event listener
+            for (let i = 0; i < 9; i++) {
+                const cell = document.createElement("div");
+                cell.classList.add("cell");
+                cell.addEventListener("click", function() {
+                    if (!gameOver && cell.innerHTML === "") {
+                        cell.innerHTML = currentPlayer;
+                        if (checkWinner()) {
+                            gameOver = true;
+                            showMessage(`${currentPlayer} wins!`);
+                        } else if (isBoardFull()) {
+                            gameOver = true;
+                            showMessage("It's a tie!");
+                        } else {
+                            currentPlayer = currentPlayer === "X" ? "O" : "X";
+                            updateTurnDisplay();
+                        }
+                    }
+                });
+                board.appendChild(cell);
+            }
+
+            // Function to check if there is a winner
+            function checkWinner() {
+                const cells = document.querySelectorAll(".cell");
+                const winningCombos = [
+                    [0, 1, 2], [3, 4, 5], [6, 7, 8], // Rows
+                    [0, 3, 6], [1, 4, 7], [2, 5, 8], // Columns
+                    [0, 4, 8], [2, 4, 6]             // Diagonals
+                ];
+
+                for (const combo of winningCombos) {
+                    const [a, b, c] = combo;
+                    if (cells[a].innerHTML && cells[a].innerHTML === cells[b].innerHTML && cells[a].innerHTML === cells[c].innerHTML) {
+                        highlightCells(combo);
+                        return true;
+                    }
+                }
+                return false;
+            }
+
+            // Function to highlight winning cells
+            function highlightCells(cellsToHighlight) {
+                const cells = document.querySelectorAll(".cell");
+                for (const index of cellsToHighlight) {
+                    cells[index].style.backgroundColor = "#27ae60";
+                    cells[index].style.color = "#ecf0f1";
+                }
+            }
+
+            // Function to check if the board is full
+            function isBoardFull() {
+                const cells = document.querySelectorAll(".cell");
+                for (const cell of cells) {
+                    if (cell.innerHTML === "") {
+                        return false;
+                    }
+                }
+                return true;
+            }
+
+            // Function to display messages
+            function showMessage(message) {
+                messageDisplay.innerHTML = message;
+            }
+
+            // Function to update turn display
+            function updateTurnDisplay() {
+                turnDisplay.innerHTML = `Player ${currentPlayer === "X" ? 1 : 2}'s turn`;
+            }
+
+            // Function to restart the game
+            window.restartGame = function() {
+                const cells = document.querySelectorAll(".cell");
+                for (const cell of cells) {
+                    cell.innerHTML = "";
+                    cell.style.backgroundColor = "#3498db";
+                    cell.style.color = "#ecf0f1";
+                }
+                messageDisplay.innerHTML = "";
+                currentPlayer = "X";
+                gameOver = false;
+                updateTurnDisplay();
+            }
+        });
+    </script>
+</body>
+</html>
